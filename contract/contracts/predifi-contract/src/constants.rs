@@ -427,6 +427,55 @@ pub const CONTRACT_VERSION: u32 = 1;
 /// **Used for:** Calculating `PendingFeeChange.effective_at` when queuing fee changes.
 pub const FEE_CHANGE_TIMELOCK_SECONDS: u64 = 86_400;
 
+/// Maximum protocol fee in basis points (10% = 1000 bps).
+///
+/// **Units:** Basis points (bps, where 100 bps = 1%)
+/// **Value:** 1,000 bps (10%)
+///
+/// **Rationale:** Caps the protocol fee so governance cannot unexpectedly change
+/// participant economics beyond a hard bound. Combined with the timelock, this
+/// ensures fee changes are both observable and bounded.
+///
+/// **Impact of changes:**
+/// - Increasing this value would allow higher fees, increasing protocol revenue
+///   but potentially harming participant economics.
+/// - Decreasing this value would further constrain governance but may limit
+///   protocol sustainability.
+///
+/// **Used for:** Enforcing the fee cap in `set_fee_bps` / `apply_fee_bps`.
+pub const MAX_FEE_BPS: u32 = 1_000;
+
+/// Minimum timelock delay in seconds for treasury fee changes.
+///
+/// **Units:** Seconds
+/// **Value:** 3,600 seconds (1 hour)
+///
+/// **Rationale:** Provides a lower bound on the delay between proposing and
+/// activating a treasury fee change, ensuring governance cannot change fees
+/// in a single transaction.
+///
+/// **Impact of changes:**
+/// - Increasing this value would provide more reaction time but slow governance.
+/// - Decreasing this value would allow faster changes but reduce observability.
+///
+/// **Used for:** Enforcing the minimum delay in `set_fee_bps` / `apply_fee_bps`.
+pub const MIN_FEE_CHANGE_DELAY_SECONDS: u64 = 3_600;
+
+/// Maximum timelock delay in seconds for treasury fee changes (30 days).
+///
+/// **Units:** Seconds
+/// **Value:** 2,592,000 seconds (30 days)
+///
+/// **Rationale:** Bounds the delay so a queued fee change cannot be effectively
+/// frozen indefinitely, while still allowing long observation windows.
+///
+/// **Impact of changes:**
+/// - Increasing this value would allow longer delays but risks stalled changes.
+/// - Decreasing this value would cap observation windows more tightly.
+///
+/// **Used for:** Enforcing the maximum delay in `set_fee_bps` / `apply_fee_bps`.
+pub const MAX_FEE_CHANGE_DELAY_SECONDS: u64 = 2_592_000;
+
 #[cfg(test)]
 #[allow(clippy::assertions_on_constants)]
 mod tests {

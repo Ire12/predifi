@@ -65,6 +65,9 @@
 //! | [`TokenWhitelistAddedEvent`] | `token_whitelist_added` | a token is allowlisted |
 //! | [`TokenWhitelistRemovedEvent`] | `token_whitelist_removed` | a token is removed from the allowlist |
 //! | [`TreasuryWithdrawnEvent`] | `treasury_withdrawn` | treasury funds are withdrawn |
+//! | [`TreasuryFeeChangeProposedEvent`] | `treasury_fee_change_proposed` | a treasury fee change is proposed |
+//! | [`TreasuryFeeChangeActivatedEvent`] | `treasury_fee_change_activated` | a proposed treasury fee change is activated |
+//! | [`TreasuryFeeChangeCancelledEvent`] | `treasury_fee_change_cancelled` | a proposed treasury fee change is cancelled |
 //! | [`RefundClaimedEvent`] | `refund_claimed` | a refund is claimed |
 //! | [`UpgradeEvent`] | `upgrade` | an upgrade is requested |
 //! | [`ContractUpgradedEvent`] | `contract_upgraded` | an upgrade is completed |
@@ -266,6 +269,62 @@ pub struct FeeUpdateEvent {
     pub admin: Address,
     /// New fee rate in basis points (e.g., 250 = 2.5%).
     pub fee_bps: u32,
+}
+
+/// Emitted when a treasury fee change is proposed but not yet active.
+///
+/// **When Emitted**: Inside `propose_treasury_fee_change`.
+/// **Indexing Implications**: Governance dashboards should surface pending fee
+/// changes along with their activation ledger so participants can react before
+/// the change takes effect.
+#[contractevent(topics = ["treasury_fee_change_proposed"])]
+#[contracttype(export = false)]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TreasuryFeeChangeProposedEvent {
+    /// Admin address proposing the fee change.
+    pub admin: Address,
+    /// Proposed new fee rate in basis points.
+    pub new_fee_bps: u32,
+    /// Fee rate currently in effect (snapshot at proposal time).
+    pub current_fee_bps: u32,
+    /// Ledger timestamp after which the change may be activated.
+    pub activation_time: u64,
+}
+
+/// Emitted when a previously proposed treasury fee change becomes active.
+///
+/// **When Emitted**: Inside `activate_treasury_fee_change`.
+/// **Indexing Implications**: Fee calculators and payout estimators must update
+/// their cached fee rate to `new_fee_bps` upon observing this event.
+#[contractevent(topics = ["treasury_fee_change_activated"])]
+#[contracttype(export = false)]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TreasuryFeeChangeActivatedEvent {
+    /// Admin address activating the fee change.
+    pub admin: Address,
+    /// Fee rate that was in effect before activation.
+    pub old_fee_bps: u32,
+    /// Fee rate now in effect.
+    pub new_fee_bps: u32,
+    /// Ledger timestamp at activation.
+    pub timestamp: u64,
+}
+
+/// Emitted when a pending treasury fee change is cancelled by governance.
+///
+/// **When Emitted**: Inside `cancel_treasury_fee_change`.
+/// **Indexing Implications**: Governance dashboards should clear any pending
+/// fee change indicators for the contract upon observing this event.
+#[contractevent(topics = ["treasury_fee_change_cancelled"])]
+#[contracttype(export = false)]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TreasuryFeeChangeCancelledEvent {
+    /// Admin address cancelling the pending fee change.
+    pub admin: Address,
+    /// Fee rate that remains in effect after cancellation.
+    pub current_fee_bps: u32,
+    /// Ledger timestamp at cancellation.
+    pub timestamp: u64,
 }
 
 /// Emitted when tiered fee schedules are modified.

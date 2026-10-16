@@ -229,6 +229,10 @@ pub enum PredifiError {
     InvalidData = 90,
     /// The provided timestamp is invalid (e.g., end_time too far in the future).
     InvalidTimestamp = 80,
+    /// The proposed fee exceeds the maximum allowed fee cap.
+    FeeExceedsCap = 98,
+    /// The proposed fee change delay is below the minimum required delay.
+    FeeDelayTooShort = 99,
     /// Pool has been flagged as disputed and cannot be modified.
     PoolDisputed = 27,
     /// target_price must be strictly positive.
