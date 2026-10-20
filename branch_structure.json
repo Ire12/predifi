@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "fix/issue-37-contracts-add-timelocks-and-caps-to-treasury",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "fix/issue-37-contracts-add-timelocks-and-caps-to-treasury": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "fix/issue-37-contracts-add-timelocks-and-caps-to-treasury",
+    "origin"
+  ]
+}
